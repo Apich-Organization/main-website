@@ -28,7 +28,7 @@ pub fn NotFoundPage() -> impl IntoView {
                     <a class="btn btn-ghost" href="/">"Home"</a>
                     <a class="btn btn-ghost" href="/contact/">"Contact"</a>
                 </div>
-                <div class="link-grid link-grid--2" style="margin-top:2.2rem;max-width:44rem">
+                <div class="link-grid link-grid--2" style="margin:2.2rem auto 0;max-width:44rem">
                     <a class="link-card" href="/projects/dtact/">
                         <span class="label">"dtact"</span>
                         <span class="sub">"runtime"</span>
