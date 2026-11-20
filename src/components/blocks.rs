@@ -13,7 +13,13 @@ pub fn ProjectCard(project: Project) -> impl IntoView {
     let c = projects::get(project);
     let href = format!("/projects/{}/", project.slug());
     let accent = format!("accent-{}", project.slug());
-    let initial = project.name().chars().next().unwrap_or('A').to_uppercase().to_string();
+    let initial = project
+        .name()
+        .chars()
+        .next()
+        .unwrap_or('A')
+        .to_uppercase()
+        .to_string();
 
     view! {
         <a class=format!("glass card-lift spot proj-card {accent}") href=href>

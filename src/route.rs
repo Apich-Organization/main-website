@@ -150,9 +150,9 @@ impl Route {
 
         match (head, second) {
             ("projects", None) => Route::Projects,
-            ("projects", Some(slug)) => {
-                Project::from_slug(slug).map(Route::Project).unwrap_or(Route::NotFound)
-            }
+            ("projects", Some(slug)) => Project::from_slug(slug)
+                .map(Route::Project)
+                .unwrap_or(Route::NotFound),
             ("research", _) => Route::Research,
             ("security", _) => Route::Security,
             ("sponsor", _) => Route::Sponsor,

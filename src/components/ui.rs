@@ -5,10 +5,7 @@ use leptos::prelude::*;
 /// Line icon set. Kept as inline SVG so icons are crisp, themeable and free of
 /// extra requests.
 #[component]
-pub fn Icon(
-    name: &'static str,
-    #[prop(optional, into)] class: String,
-) -> impl IntoView {
+pub fn Icon(name: &'static str, #[prop(optional, into)] class: String) -> impl IntoView {
     let paths: &[&str] = match name {
         "sun" => &[
             "M12 3v1.5M12 19.5V21M4.2 4.2l1.1 1.1M18.7 18.7l1.1 1.1M3 12h1.5M19.5 12H21M4.2 19.8l1.1-1.1M18.7 5.3l1.1-1.1",
@@ -52,10 +49,7 @@ pub fn Icon(
         _ => &["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"],
     };
 
-    let inner = paths
-        .iter()
-        .map(|d| view! { <path d=*d /> })
-        .collect_view();
+    let inner = paths.iter().map(|d| view! { <path d=*d /> }).collect_view();
 
     view! {
         <svg
@@ -110,7 +104,11 @@ pub fn Stat(
 /// Pill-shaped label.
 #[component]
 pub fn Badge(#[prop(into)] text: String, #[prop(optional, into)] tone: String) -> impl IntoView {
-    let tone = if tone.is_empty() { "neutral".to_string() } else { tone };
+    let tone = if tone.is_empty() {
+        "neutral".to_string()
+    } else {
+        tone
+    };
     view! { <span class=format!("badge badge-{tone}")>{text}</span> }
 }
 

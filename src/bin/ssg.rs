@@ -18,7 +18,9 @@ fn main() {
     let mut args = std::env::args().skip(1);
     let dist = PathBuf::from(args.next().unwrap_or_else(|| "dist".into()));
     let js_url = args.next().unwrap_or_else(|| "/pkg/apich-site.js".into());
-    let css_url = args.next().unwrap_or_else(|| "/assets/css/style.css".into());
+    let css_url = args
+        .next()
+        .unwrap_or_else(|| "/assets/css/style.css".into());
 
     // Clear previously generated pages but keep the compiled bundle (`pkg/`)
     // and the static assets, so a re-render does not require a rebuild.
@@ -30,9 +32,20 @@ fn main() {
         }
     }
     let _ = fs::remove_dir_all(dist.join("404"));
-    for stale in ["404.html", "sitemap.xml", "robots.txt", "llms.txt", "llms-full.txt",
-                  "site.webmanifest", "CNAME", "BingSiteAuth.xml", "blog/feed.xml",
-                  "data/projects.json", "data/site.json", ".well-known/security.txt"] {
+    for stale in [
+        "404.html",
+        "sitemap.xml",
+        "robots.txt",
+        "llms.txt",
+        "llms-full.txt",
+        "site.webmanifest",
+        "CNAME",
+        "BingSiteAuth.xml",
+        "blog/feed.xml",
+        "data/projects.json",
+        "data/site.json",
+        ".well-known/security.txt",
+    ] {
         let _ = fs::remove_file(dist.join(stale));
     }
 
@@ -64,7 +77,11 @@ fn main() {
     fs::write(dist.join("data/projects.json"), projects_json()).expect("write projects.json");
     fs::write(dist.join("data/site.json"), site_json()).expect("write site.json");
 
-    println!("generated {} pages into {}", rendered.len() + 1, dist.display());
+    println!(
+        "generated {} pages into {}",
+        rendered.len() + 1,
+        dist.display()
+    );
 }
 
 // ── Rendering ────────────────────────────────────────────────────────────────
@@ -88,20 +105,35 @@ fn render_document(route: Route, js_url: &str, css_url: &str) -> String {
         head.push_str(&format!("<link rel=\"canonical\" href=\"{url}\">\n"));
     }
     head.push_str("<meta name=\"color-scheme\" content=\"light dark\">\n");
-    head.push_str("<meta name=\"theme-color\" content=\"#f3f6fc\" media=\"(prefers-color-scheme: light)\">\n");
-    head.push_str("<meta name=\"theme-color\" content=\"#05070f\" media=\"(prefers-color-scheme: dark)\">\n");
+    head.push_str(
+        "<meta name=\"theme-color\" content=\"#f3f6fc\" media=\"(prefers-color-scheme: light)\">\n",
+    );
+    head.push_str(
+        "<meta name=\"theme-color\" content=\"#05070f\" media=\"(prefers-color-scheme: dark)\">\n",
+    );
 
     // Social cards
     let image = format!("{SITE_URL}{}", meta.image);
-    head.push_str(&format!("<meta property=\"og:type\" content=\"{}\">\n", meta.og_type));
-    head.push_str(&format!("<meta property=\"og:site_name\" content=\"{}\">\n", esc(SITE_NAME)));
-    head.push_str(&format!("<meta property=\"og:title\" content=\"{}\">\n", esc(&meta.title)));
+    head.push_str(&format!(
+        "<meta property=\"og:type\" content=\"{}\">\n",
+        meta.og_type
+    ));
+    head.push_str(&format!(
+        "<meta property=\"og:site_name\" content=\"{}\">\n",
+        esc(SITE_NAME)
+    ));
+    head.push_str(&format!(
+        "<meta property=\"og:title\" content=\"{}\">\n",
+        esc(&meta.title)
+    ));
     head.push_str(&format!(
         "<meta property=\"og:description\" content=\"{}\">\n",
         esc(&meta.description)
     ));
     head.push_str(&format!("<meta property=\"og:url\" content=\"{url}\">\n"));
-    head.push_str(&format!("<meta property=\"og:image\" content=\"{image}\">\n"));
+    head.push_str(&format!(
+        "<meta property=\"og:image\" content=\"{image}\">\n"
+    ));
     head.push_str("<meta property=\"og:image:width\" content=\"1200\">\n");
     head.push_str("<meta property=\"og:image:height\" content=\"630\">\n");
     head.push_str(&format!(
@@ -110,12 +142,17 @@ fn render_document(route: Route, js_url: &str, css_url: &str) -> String {
     ));
     head.push_str("<meta property=\"og:locale\" content=\"en_US\">\n");
     head.push_str("<meta name=\"twitter:card\" content=\"summary_large_image\">\n");
-    head.push_str(&format!("<meta name=\"twitter:title\" content=\"{}\">\n", esc(&meta.title)));
+    head.push_str(&format!(
+        "<meta name=\"twitter:title\" content=\"{}\">\n",
+        esc(&meta.title)
+    ));
     head.push_str(&format!(
         "<meta name=\"twitter:description\" content=\"{}\">\n",
         esc(&meta.description)
     ));
-    head.push_str(&format!("<meta name=\"twitter:image\" content=\"{image}\">\n"));
+    head.push_str(&format!(
+        "<meta name=\"twitter:image\" content=\"{image}\">\n"
+    ));
 
     head.push_str("<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n");
     head.push_str("<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"32x32\">\n");
@@ -123,7 +160,9 @@ fn render_document(route: Route, js_url: &str, css_url: &str) -> String {
     head.push_str("<link rel=\"manifest\" href=\"/site.webmanifest\">\n");
     head.push_str("<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Apich Organization — Blog\" href=\"/blog/feed.xml\">\n");
     head.push_str("<link rel=\"sitemap\" type=\"application/xml\" href=\"/sitemap.xml\">\n");
-    head.push_str("<link rel=\"alternate\" type=\"text/plain\" title=\"llms.txt\" href=\"/llms.txt\">\n");
+    head.push_str(
+        "<link rel=\"alternate\" type=\"text/plain\" title=\"llms.txt\" href=\"/llms.txt\">\n",
+    );
     head.push_str("<link rel=\"preload\" href=\"/assets/fonts/inter-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>\n");
     head.push_str("<link rel=\"preload\" href=\"/assets/fonts/newsreader-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>\n");
     head.push_str(&format!("<link rel=\"stylesheet\" href=\"{css_url}\">\n"));
@@ -311,8 +350,12 @@ fn llms_txt() -> String {
     out.push_str("- [Home](https://apich.org/): mission, pillars, and featured projects.\n");
     out.push_str("- [Projects](https://apich.org/projects/): index of every maintained project.\n");
     out.push_str("- [Sponsorship](https://apich.org/sponsor/): Open Collective tiers for the organization and each project.\n");
-    out.push_str("- [Contact](https://apich.org/contact/): team addresses and security reporting.\n");
-    out.push_str("- [Full text](https://apich.org/llms-full.txt): every page of this site as plain text.\n");
+    out.push_str(
+        "- [Contact](https://apich.org/contact/): team addresses and security reporting.\n",
+    );
+    out.push_str(
+        "- [Full text](https://apich.org/llms-full.txt): every page of this site as plain text.\n",
+    );
     out.push_str("- [Machine-readable data](https://apich.org/data/projects.json): project metadata as JSON.\n");
     out.push_str("- [Site map data](https://apich.org/data/site.json): every page with its title and description, as JSON.\n");
     out.push_str("- [RSS](https://apich.org/blog/feed.xml): the blog feed.\n");
@@ -334,7 +377,9 @@ fn llms_txt() -> String {
     out.push('\n');
 
     out.push_str("## Teams\n\n");
-    out.push_str("- [Science & Research Team](https://apich.org/research/): PINN, AI4S and HPC research.\n");
+    out.push_str(
+        "- [Science & Research Team](https://apich.org/research/): PINN, AI4S and HPC research.\n",
+    );
     out.push_str("- [Security Team](https://apich.org/security/): vulnerability disclosure and security standards.\n");
     out.push_str("- [Blog](https://apich.org/blog/): announcements and engineering notes.\n\n");
 
@@ -346,7 +391,9 @@ fn llms_txt() -> String {
     out.push_str("- Funding: every project links to its Open Collective budget, or to the organization account where it has none. Recurring and one-off contributions are both accepted.\n");
     out.push_str("- Retired subdomains (`dtact.apich.org`, `ensia.apich.org`, `bincode-next.apich.org`, `rssn.apich.org`, `cargo-slide.apich.org`, `research.apich.org`, `security.apich.org`, `blog.apich.org`) now serve this site. Cite `apich.org` paths instead.\n");
     out.push_str("- `aevia` has its own platform site at https://aevia.apich.org/; this site carries its overview.\n");
-    out.push_str("- Licensing: each project states its own license on its page. Site text is CC BY 4.0.\n");
+    out.push_str(
+        "- Licensing: each project states its own license on its page. Site text is CC BY 4.0.\n",
+    );
     out
 }
 
@@ -354,10 +401,16 @@ fn llms_full(rendered: &[(Route, String)]) -> String {
     let mut out = String::new();
     out.push_str("# Apich Organization — full site text\n\n");
     out.push_str(&format!("> {DESCRIPTION}\n\n"));
-    out.push_str("Generated from the production build. Each section is one page, in sitemap order.\n\n");
+    out.push_str(
+        "Generated from the production build. Each section is one page, in sitemap order.\n\n",
+    );
     for (route, html) in rendered {
         let meta = meta::meta_for(*route);
-        out.push_str(&format!("---\n\n# {}\n\nURL: {}\n\n", meta.title, canonical(*route)));
+        out.push_str(&format!(
+            "---\n\n# {}\n\nURL: {}\n\n",
+            meta.title,
+            canonical(*route)
+        ));
         out.push_str(&html_to_text(html));
         out.push_str("\n\n");
     }
@@ -369,7 +422,10 @@ fn rss_feed() -> String {
     out.push_str("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n<channel>\n");
     out.push_str("  <title>Apich Organization — Blog</title>\n");
     out.push_str("  <link>https://apich.org/blog/</link>\n");
-    out.push_str(&format!("  <description>{}</description>\n", esc(DESCRIPTION)));
+    out.push_str(&format!(
+        "  <description>{}</description>\n",
+        esc(DESCRIPTION)
+    ));
     out.push_str("  <language>en</language>\n");
     let (_, built) = build_date();
     out.push_str(&format!("  <lastBuildDate>{built}</lastBuildDate>\n"));
@@ -385,9 +441,15 @@ fn rss_feed() -> String {
             "    <link>https://apich.org/blog/{}/</link>\n",
             post.slug
         ));
-        out.push_str(&format!("    <guid>https://apich.org/blog/{}/</guid>\n", post.slug));
+        out.push_str(&format!(
+            "    <guid>https://apich.org/blog/{}/</guid>\n",
+            post.slug
+        ));
         out.push_str(&format!("    <pubDate>{}</pubDate>\n", post.rfc822));
-        out.push_str(&format!("    <description>{}</description>\n", esc(post.summary)));
+        out.push_str(&format!(
+            "    <description>{}</description>\n",
+            esc(post.summary)
+        ));
         out.push_str("  </item>\n");
     }
     out.push_str("</channel>\n</rss>\n");
@@ -434,7 +496,8 @@ fn webmanifest() -> String {
 }
 
 fn bing_auth() -> String {
-    "<?xml version=\"1.0\"?>\n<users>\n\t<user>4F8D83BFD76E42863A6A51179B46F7DF</user>\n</users>\n".to_string()
+    "<?xml version=\"1.0\"?>\n<users>\n\t<user>4F8D83BFD76E42863A6A51179B46F7DF</user>\n</users>\n"
+        .to_string()
 }
 
 fn projects_json() -> String {
@@ -479,7 +542,10 @@ fn site_json() -> String {
     out.push_str(&format!("  \"description\": {},\n", json_str(DESCRIPTION)));
     out.push_str(&format!("  \"email\": {},\n", json_str(EMAIL_GENERAL)));
     out.push_str(&format!("  \"github\": {},\n", json_str(GITHUB_ORG)));
-    out.push_str(&format!("  \"open_collective\": {},\n", json_str(OPEN_COLLECTIVE)));
+    out.push_str(&format!(
+        "  \"open_collective\": {},\n",
+        json_str(OPEN_COLLECTIVE)
+    ));
     out.push_str("  \"pages\": [\n");
     for (i, route) in all_routes().iter().enumerate() {
         if i > 0 {
@@ -550,7 +616,10 @@ fn html_to_text(html: &str) -> String {
 
     while i < bytes.len() {
         if bytes[i] == b'<' {
-            let end = main[i..].find('>').map(|e| i + e + 1).unwrap_or(bytes.len());
+            let end = main[i..]
+                .find('>')
+                .map(|e| i + e + 1)
+                .unwrap_or(bytes.len());
             let tag = main[i..end].to_ascii_lowercase();
 
             if tag.starts_with("<aside") {
@@ -586,7 +655,11 @@ fn html_to_text(html: &str) -> String {
             }
 
             if tag.starts_with("<script") || tag.starts_with("<style") {
-                let close = if tag.starts_with("<script") { "</script>" } else { "</style>" };
+                let close = if tag.starts_with("<script") {
+                    "</script>"
+                } else {
+                    "</style>"
+                };
                 let rest = main[end..].to_ascii_lowercase();
                 if let Some(pos) = rest.find(close) {
                     i = end + pos + close.len();
@@ -607,8 +680,10 @@ fn html_to_text(html: &str) -> String {
             } else if tag.starts_with("<br") {
                 out.push('\n');
             } else if tag.starts_with("<dt") {
-                out.push_str("
-- ");
+                out.push_str(
+                    "
+- ",
+                );
             } else if tag.starts_with("<dd") {
                 out.push_str(": ");
             } else if tag.starts_with("<td") || tag.starts_with("<th") {

@@ -65,11 +65,7 @@ pub fn ProjectPage(project: Project) -> impl IntoView {
         })
         .collect_view();
 
-    let paragraphs = d
-        .intro
-        .iter()
-        .map(|p| view! { <p>{*p}</p> })
-        .collect_view();
+    let paragraphs = d.intro.iter().map(|p| view! { <p>{*p}</p> }).collect_view();
 
     let spec_rows = {
         let mut rows: Vec<AnyView> = Vec::new();
