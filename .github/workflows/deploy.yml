@@ -1,0 +1,82 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  # Refresh the published version numbers once a day. A release that lands on
+  # crates.io or as a tag is picked up without anyone editing the site.
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Refresh published versions
+        # Runs on the nightly tick and on manual dispatch, never on a push:
+        # a push is already a deliberate edit.
+        if: github.event_name != 'push'
+        continue-on-error: true
+        run: |
+          python3 scripts/update_versions.py
+          if git diff --quiet -- src/content/versions.rs; then
+            echo "versions unchanged"
+            exit 0
+          fi
+          git config user.name "apich release bot"
+          git config user.email "bot@apich.org"
+          git add src/content/versions.rs
+          git commit -m "chore: refresh published versions"
+          git push
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install trunk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: trunk
+
+      - name: Build
+        run: bash scripts/build.sh
+
+      - name: Verify output
+        run: |
+          python3 scripts/verify.py dist
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

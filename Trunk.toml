@@ -1,0 +1,9 @@
+[build]
+target = "index.html"
+dist = "build/pkg"
+filehash = false
+public_url = "/pkg/"
+
+[serve]
+port = 8099
+open = false

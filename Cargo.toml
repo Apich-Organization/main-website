@@ -1,0 +1,61 @@
+[package]
+name = "apich-site"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.85"
+description = "The Apich Organization website — statically generated with Leptos"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "ssg"
+path = "src/bin/ssg.rs"
+required-features = ["ssr"]
+
+[dependencies]
+leptos = { version = "0.8", default-features = false }
+serde_json = { version = "1", optional = true }
+
+console_error_panic_hook = { version = "0.1", optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true, features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlElement",
+    "Location",
+    "History",
+    "Storage",
+    "Navigator",
+    "MediaQueryList",
+    "Event",
+    "MouseEvent",
+    "KeyboardEvent",
+    "PopStateEvent",
+    "HtmlDocument",
+    "DomRect",
+    "Clipboard",
+] }
+
+[features]
+default = []
+hydrate = [
+    "leptos/hydrate",
+    "dep:console_error_panic_hook",
+    "dep:wasm-bindgen",
+    "dep:js-sys",
+    "dep:web-sys",
+]
+ssr = ["leptos/ssr", "dep:serde_json"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+# Do not set `strip = true`: wasm-bindgen needs the `target_features` section
+# to tell wasm-opt which proposals are in use.
