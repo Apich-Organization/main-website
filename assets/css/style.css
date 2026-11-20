@@ -2818,9 +2818,11 @@ table.data .num {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Compact navigation (below 780px), coarse pointers, and small screens
+   Compact navigation (below 880px), coarse pointers, and small screens
    ═══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 780px) {
+/* Six links plus the call to action and the icon buttons need about 860px;
+   below that the drawer is the honest layout. */
+@media (max-width: 880px) {
   .nav-links {
     display: none;
   }
@@ -2881,6 +2883,9 @@ table.data .num {
     gap: 0.6rem;
     padding-top: 1rem;
   }
+}
+
+@media (max-width: 780px) {
   .check-list .row {
     flex-wrap: nowrap;
     align-items: flex-start;

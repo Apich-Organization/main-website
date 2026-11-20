@@ -47,6 +47,9 @@ pub fn Nav() -> impl IntoView {
                     <a class="nav-link" href="/sponsor/" class:active=move || section() == "sponsor">
                         "Sponsor"
                     </a>
+                    <a class="nav-link" href="/contact/" class:active=move || section() == "contact">
+                        "Contact"
+                    </a>
                 </nav>
 
                 <div class="nav-actions">
@@ -121,10 +124,18 @@ pub fn Nav() -> impl IntoView {
 fn toggle_theme() {
     #[cfg(feature = "hydrate")]
     {
-        let Some(window) = web_sys::window() else { return };
-        let Some(document) = window.document() else { return };
-        let Some(root) = document.document_element() else { return };
-        let current = root.get_attribute("data-theme").unwrap_or_else(|| "light".into());
+        let Some(window) = web_sys::window() else {
+            return;
+        };
+        let Some(document) = window.document() else {
+            return;
+        };
+        let Some(root) = document.document_element() else {
+            return;
+        };
+        let current = root
+            .get_attribute("data-theme")
+            .unwrap_or_else(|| "light".into());
         let next = if current == "dark" { "light" } else { "dark" };
         let _ = root.set_attribute("data-theme", next);
         if let Ok(Some(storage)) = window.local_storage() {
@@ -142,9 +153,15 @@ fn toggle_theme() {
 /// Describes what the toggle will do next, rather than the state it is in.
 #[cfg(feature = "hydrate")]
 fn sync_theme_button(document: &web_sys::Document) {
-    let Some(root) = document.document_element() else { return };
+    let Some(root) = document.document_element() else {
+        return;
+    };
     let dark = root.get_attribute("data-theme").as_deref() == Some("dark");
-    let label = if dark { "Switch to light theme" } else { "Switch to dark theme" };
+    let label = if dark {
+        "Switch to light theme"
+    } else {
+        "Switch to dark theme"
+    };
     if let Ok(Some(btn)) = document.query_selector(".theme-toggle") {
         let _ = btn.set_attribute("aria-label", label);
         let _ = btn.set_attribute("title", label);
@@ -158,63 +175,75 @@ fn sync_theme_button(document: &web_sys::Document) {
 pub fn install_client_router(current: RwSignal<Route>) {
     use wasm_bindgen::prelude::*;
 
-    let Some(window) = web_sys::window() else { return };
-    let Some(document) = window.document() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let Some(document) = window.document() else {
+        return;
+    };
 
     // ── Click delegation ────────────────────────────────────────────────
     let click_current = current;
-    let on_click = Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |ev: web_sys::MouseEvent| {
-        if ev.default_prevented()
-            || ev.button() != 0
-            || ev.meta_key()
-            || ev.ctrl_key()
-            || ev.shift_key()
-            || ev.alt_key()
-        {
-            return;
-        }
-        let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok()) else {
-            return;
-        };
-
-        // Copy-to-clipboard buttons.
-        if let Ok(Some(btn)) = target.closest("[data-copy]") {
-            if let Some(text) = btn.get_attribute("data-copy") {
-                copy_to_clipboard(&btn, &text);
-                ev.prevent_default();
+    let on_click =
+        Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |ev: web_sys::MouseEvent| {
+            if ev.default_prevented()
+                || ev.button() != 0
+                || ev.meta_key()
+                || ev.ctrl_key()
+                || ev.shift_key()
+                || ev.alt_key()
+            {
                 return;
             }
-        }
+            let Some(target) = ev
+                .target()
+                .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+            else {
+                return;
+            };
 
-        let Ok(Some(anchor)) = target.closest("a[href]") else { return };
-        if let Some(t) = anchor.get_attribute("target") {
-            if t != "_self" {
+            // Copy-to-clipboard buttons.
+            if let Ok(Some(btn)) = target.closest("[data-copy]") {
+                if let Some(text) = btn.get_attribute("data-copy") {
+                    copy_to_clipboard(&btn, &text);
+                    ev.prevent_default();
+                    return;
+                }
+            }
+
+            let Ok(Some(anchor)) = target.closest("a[href]") else {
+                return;
+            };
+            if let Some(t) = anchor.get_attribute("target") {
+                if t != "_self" {
+                    return;
+                }
+            }
+            if anchor.has_attribute("download") {
                 return;
             }
-        }
-        if anchor.has_attribute("download") {
-            return;
-        }
-        let Some(href) = anchor.get_attribute("href") else { return };
-        if href.starts_with('#') || href.starts_with("mailto:") || href.starts_with("tel:") {
-            return;
-        }
-        let path = if let Some(rest) = href.strip_prefix("https://apich.org") {
-            rest.to_string()
-        } else if href.starts_with('/') {
-            href.clone()
-        } else {
-            return;
-        };
+            let Some(href) = anchor.get_attribute("href") else {
+                return;
+            };
+            if href.starts_with('#') || href.starts_with("mailto:") || href.starts_with("tel:") {
+                return;
+            }
+            let path = if let Some(rest) = href.strip_prefix("https://apich.org") {
+                rest.to_string()
+            } else if href.starts_with('/') {
+                href.clone()
+            } else {
+                return;
+            };
 
-        // Only take over navigation for routes this build knows about; anything
-        // else gets a normal request so the server's 404 page is used.
-        if Route::from_path(&path) == Route::NotFound {
-            return;
-        }
-        ev.prevent_default();
-        push_route(click_current, &path);
-    });
+            // Only take over navigation for routes this build knows about; anything
+            // else gets a normal request so the server's 404 page is used.
+            if Route::from_path(&path) == Route::NotFound {
+                return;
+            }
+            ev.prevent_default();
+            push_route(click_current, &path);
+        });
     let _ = document.add_event_listener_with_callback("click", on_click.as_ref().unchecked_ref());
     on_click.forget();
 
@@ -230,17 +259,23 @@ pub fn install_client_router(current: RwSignal<Route>) {
 
     // ── Prefetch on hover ──────────────────────────────────────────────
     let on_over = Closure::<dyn FnMut(web_sys::Event)>::new(move |ev: web_sys::Event| {
-        let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok()) else {
+        let Some(target) = ev
+            .target()
+            .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+        else {
             return;
         };
-        let Ok(Some(anchor)) = target.closest("a[href^=\"/\"]") else { return };
+        let Ok(Some(anchor)) = target.closest("a[href^=\"/\"]") else {
+            return;
+        };
         if let Some(href) = anchor.get_attribute("href") {
             if Route::from_path(&href) != Route::NotFound {
                 prefetch(&href);
             }
         }
     });
-    let _ = document.add_event_listener_with_callback("mouseover", on_over.as_ref().unchecked_ref());
+    let _ =
+        document.add_event_listener_with_callback("mouseover", on_over.as_ref().unchecked_ref());
     on_over.forget();
 
     // ── Navigation bar elevation ───────────────────────────────────────
@@ -272,10 +307,15 @@ pub fn install_client_router(current: RwSignal<Route>) {
 
     // ── Pointer-tracked sheen on cards ─────────────────────────────────
     let on_move = Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |ev: web_sys::MouseEvent| {
-        let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok()) else {
+        let Some(target) = ev
+            .target()
+            .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+        else {
             return;
         };
-        let Ok(Some(card)) = target.closest(".spot") else { return };
+        let Ok(Some(card)) = target.closest(".spot") else {
+            return;
+        };
         let rect = card.get_bounding_client_rect();
         if rect.width() == 0.0 {
             return;
@@ -284,26 +324,32 @@ pub fn install_client_router(current: RwSignal<Route>) {
         let y = ((ev.client_y() as f64 - rect.top()) / rect.height() * 100.0) as i32;
         let _ = card.set_attribute("style", &format!("--mx:{x}%;--my:{y}%"));
     });
-    let _ = document.add_event_listener_with_callback("mousemove", on_move.as_ref().unchecked_ref());
+    let _ =
+        document.add_event_listener_with_callback("mousemove", on_move.as_ref().unchecked_ref());
     on_move.forget();
 
     // ── Escape closes the mobile drawer ────────────────────────────────
-    let on_key = Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(move |ev: web_sys::KeyboardEvent| {
-        if ev.key() != "Escape" {
-            return;
-        }
-        let Some(document) = web_sys::window().and_then(|w| w.document()) else { return };
-        let Some(drawer) = document.get_element_by_id("nav-drawer") else { return };
-        if !drawer.class_list().contains("open") {
-            return;
-        }
-        if let Ok(Some(burger)) = document.query_selector(".nav-burger") {
-            if let Some(btn) = burger.dyn_into::<web_sys::HtmlElement>().ok() {
-                let _ = btn.click();
-                let _ = btn.focus();
+    let on_key =
+        Closure::<dyn FnMut(web_sys::KeyboardEvent)>::new(move |ev: web_sys::KeyboardEvent| {
+            if ev.key() != "Escape" {
+                return;
             }
-        }
-    });
+            let Some(document) = web_sys::window().and_then(|w| w.document()) else {
+                return;
+            };
+            let Some(drawer) = document.get_element_by_id("nav-drawer") else {
+                return;
+            };
+            if !drawer.class_list().contains("open") {
+                return;
+            }
+            if let Ok(Some(burger)) = document.query_selector(".nav-burger") {
+                if let Some(btn) = burger.dyn_into::<web_sys::HtmlElement>().ok() {
+                    let _ = btn.click();
+                    let _ = btn.focus();
+                }
+            }
+        });
     let _ = document.add_event_listener_with_callback("keydown", on_key.as_ref().unchecked_ref());
     on_key.forget();
 
@@ -315,7 +361,9 @@ pub fn install_client_router(current: RwSignal<Route>) {
 fn copy_to_clipboard(btn: &web_sys::Element, text: &str) {
     use wasm_bindgen::prelude::Closure;
 
-    let Some(window) = web_sys::window() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
     let promise = window.navigator().clipboard().write_text(text);
 
     let btn = btn.clone();
@@ -351,8 +399,12 @@ fn copy_to_clipboard(btn: &web_sys::Element, text: &str) {
 
 #[cfg(feature = "hydrate")]
 fn prefetch(href: &str) {
-    let Some(document) = web_sys::window().and_then(|w| w.document()) else { return };
-    let Ok(Some(head)) = document.query_selector("head") else { return };
+    let Some(document) = web_sys::window().and_then(|w| w.document()) else {
+        return;
+    };
+    let Ok(Some(head)) = document.query_selector("head") else {
+        return;
+    };
     if document
         .query_selector(&format!("link[rel=\"prefetch\"][href=\"{href}\"]"))
         .ok()
@@ -373,7 +425,9 @@ fn prefetch(href: &str) {
 #[cfg(feature = "hydrate")]
 pub fn push_route(current: RwSignal<Route>, path: &str) {
     use wasm_bindgen::JsValue;
-    let Some(window) = web_sys::window() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
     if let Ok(history) = window.history() {
         let _ = history.push_state_with_url(&JsValue::NULL, "", Some(path));
     }
@@ -384,8 +438,12 @@ pub fn push_route(current: RwSignal<Route>, path: &str) {
 /// Scroll, focus and head bookkeeping that runs after every navigation.
 #[cfg(feature = "hydrate")]
 fn after_navigation(scroll: bool) {
-    let Some(window) = web_sys::window() else { return };
-    let Some(document) = window.document() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let Some(document) = window.document() else {
+        return;
+    };
 
     if scroll {
         let hash = window.location().hash().unwrap_or_default();
