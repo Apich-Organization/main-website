@@ -1,0 +1,12 @@
+# Normalise line endings in the repository. CI builds on Linux, where a stray
+# CR makes `set -euo pipefail` fail, so text is stored and checked out as LF
+# everywhere — including on Windows checkouts.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff2 binary
+*.woff binary
+*.pdf binary
