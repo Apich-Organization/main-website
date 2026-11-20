@@ -119,7 +119,7 @@ pub fn HomePage() -> impl IntoView {
                     <ul class="stack check-list" style="gap:.55rem;margin-top:.5rem">
                         <li class="row" style="gap:.55rem">
                             <Icon name="check" class="icon-sm" />
-                            <span class="muted">"dtact requires Rust 1.98 or newer."</span>
+                            <span class="muted">"Each crate declares its own minimum Rust version in its metadata."</span>
                         </li>
                         <li class="row" style="gap:.55rem">
                             <Icon name="check" class="icon-sm" />

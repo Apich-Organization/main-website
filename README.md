@@ -152,5 +152,8 @@ gpg --show-keys assets/security-pgp.asc
 
 ## License
 
-Site content is CC BY 4.0. Code in this repository is MIT OR Apache-2.0. Each
-project keeps its own license, stated on its page.
+Code in this repository is dual-licensed MIT OR Apache-2.0 — see `LICENSE`,
+`LICENSE-MIT` and `LICENSE-APACHE`. Site content (prose, project descriptions,
+Open Graph images and brand assets) is CC BY 4.0; attribute it to "Apich
+Organization" and link to https://apich.org/. Each project described on the site
+keeps its own license, stated on its page.

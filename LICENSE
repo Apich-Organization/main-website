@@ -1,0 +1,14 @@
+Apich Organization — main-website
+
+The source code in this repository (Rust, CSS, scripts) is dual-licensed under
+the Apache License, Version 2.0 and the MIT License. You may choose either
+license according to your requirements.
+
+  - Apache License 2.0 — see LICENSE-APACHE
+  - MIT License        — see LICENSE-MIT
+
+The site content — the prose, the project descriptions, the Open Graph images
+and the brand assets — is licensed CC BY 4.0. Attribute it to "Apich
+Organization" and link to https://apich.org/.
+
+Each project described on the site keeps its own license, stated on its page.

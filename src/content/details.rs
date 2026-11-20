@@ -101,7 +101,7 @@ static DTACT: ProjectDetail = ProjectDetail {
     install_title: "shell — cargo",
     install_html: "<span class=\"c\"># the runtime</span>\ncargo add dtact\n\n<span class=\"c\"># async I/O on the same scheduler</span>\ncargo add dtact-util",
     install_plain: "cargo add dtact\ncargo add dtact-util",
-    install_note: "Requires Rust 1.98.1. The C API ships as dtact.h; dtact-util exposes io, fs, process, signal, stream and timer through the same ABI, with io_uring, IOCP and kqueue backends.",
+    install_note: "The C API ships as dtact.h; dtact-util exposes io, fs, process, signal, stream and timer through the same ABI, with io_uring, IOCP and kqueue backends.",
     links: &[
         ("crates.io", "dtact", "https://crates.io/crates/dtact"),
         ("docs.rs", "API reference", "https://docs.rs/dtact"),
@@ -362,7 +362,7 @@ static CARGO_SLIDE: ProjectDetail = ProjectDetail {
     install_title: "shell — cargo",
     install_html: "<span class=\"c\"># install the CLI and editor</span>\ncargo install cargo-slide\n\n<span class=\"c\"># scaffold a five-file project and play it</span>\ncargo slide init talk\ncd talk && cargo slide present",
     install_plain: "cargo install cargo-slide\ncargo slide init talk\ncd talk && cargo slide present",
-    install_note: "Rust 1.89 or newer. slide-editor provides the WYSIWYG canvas; slide-viewer plays .slide archives on machines without a toolchain.",
+    install_note: "slide-editor provides the WYSIWYG canvas; slide-viewer plays .slide archives on machines without a toolchain.",
     links: &[
         ("crates.io", "cargo-slide", "https://crates.io/crates/cargo-slide"),
         ("docs.rs", "API reference", "https://docs.rs/cargo-slide"),
