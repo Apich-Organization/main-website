@@ -418,6 +418,18 @@ hr {
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+
+/* A checklist row keeps its tick beside the first line: the label wraps inside
+   its own box instead of being pushed onto a second flex line, where the tick
+   ends up alone above the text. */
+.check-list .row {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+.check-list .row > span {
+  flex: 1;
+  min-width: 0;
+}
 .center {
   text-align: center;
 }
@@ -2882,17 +2894,6 @@ table.data .num {
     display: flex;
     gap: 0.6rem;
     padding-top: 1rem;
-  }
-}
-
-@media (max-width: 780px) {
-  .check-list .row {
-    flex-wrap: nowrap;
-    align-items: flex-start;
-  }
-  .check-list .row > span {
-    flex: 1;
-    min-width: 0;
   }
 }
 
