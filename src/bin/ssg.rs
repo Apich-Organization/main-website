@@ -222,6 +222,17 @@ fn civil_from_days(days: i64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
+/// Properties that keep their own subdomain. They are not routes of this site,
+/// but they sit on the same domain and are listed in its sitemap.
+const SIBLING_PROPERTIES: &[&str] = &[
+    "https://tou.apich.org/",
+    "https://ygs-2026.apich.org/",
+    "https://ncee.apich.org/",
+    "https://status.apich.org/",
+    "https://panayang.apich.org/",
+    "https://panayang.blog.apich.org/",
+];
+
 fn sitemap() -> String {
     let mut out = String::from(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n",
@@ -249,6 +260,12 @@ fn sitemap() -> String {
             lastmod,
             priority
         ));
+    }
+    // Properties that keep their own subdomain. They are not routes here, but
+    // they belong to the same domain and should be discoverable from one file.
+    out.push_str("  <!-- Properties that keep their own subdomain -->\n");
+    for url in SIBLING_PROPERTIES {
+        out.push_str(&format!("  <url>\n    <loc>{url}</loc>\n  </url>\n"));
     }
     out.push_str("</urlset>\n");
     out
